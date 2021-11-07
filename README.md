@@ -27,6 +27,7 @@ Dataset from [1].
 + Normalized features: ['casual', 'registered', 'cnt', 'temp', 'hum', 'windspeed']
 
 # Comments.
++ on my_answers_loop.py we have the loop implementation. on my_answers_vectorial.py. Vectorial implementation, for the same optimal parameters of the NN is 25% faster.
 + Create selector of features. We will leverage sklearn **SelectKBest**. For continuous features we will apply **ANOVA/f_regression** to select k top features (Rank by p-value). For discrete features we will use mutual information (**mutual_info_regression**). The ANOVA would pick linear relationships between features and target. It assumes normality. Mutual information does not make any assumptions. It try to quantify the amount of information a pair of random variable shares. 
 + Apply Bayesian search of hyperparameters with **Hyperopt**. With Bayesian search we try to swap the optimization space more efficiently by taking into account the history of trials. In the current exercise, the optimization space contains, hyperparameters as learning rate,  feature selection steps, and network architecture (selection of number of hiddens units).
 + I also try to apply early stopping with a naive implementation.
@@ -38,13 +39,13 @@ Dataset from [1].
 ![backprod](./assets/backprod.png)
 
 ## Final predictions
-+ Training loss **0.074**. Validation loss: **0.155**
++ Training loss **0.073**. Validation loss: **0.187**
 ![forward_pass](./assets/final_test.png)
 
 ## Final Architecure
-+ iterations = 12000
-+ learning_rate = 0.15
-+ hidden_nodes = 100
++ iterations = 12500
++ learning_rate = 0.15975162730953352
++ hidden_nodes = 10
 + output_nodes = 1
 
 ## bibliography

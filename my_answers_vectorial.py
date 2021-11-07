@@ -2,6 +2,7 @@ import numpy as np
 
 class NeuralNetwork(object):
     def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate):
+        print('using vectorial implementation')
         # Set number of nodes in input, hidden and output layers.
         self.input_nodes = input_nodes
         self.hidden_nodes = hidden_nodes
@@ -24,20 +25,23 @@ class NeuralNetwork(object):
             features: 2D array, each row is one data record, each column is a feature
             targets: 1D array of target values
         '''
+        # make sure the input is proper matrix.
+        # we need this for vectorial for/back pass.
+        targets = np.array(targets)
+        targets = targets.reshape(len(targets), self.output_nodes)
         n_records = features.shape[0]
         delta_weights_i_h = np.zeros(self.weights_input_to_hidden.shape)
         delta_weights_h_o = np.zeros(self.weights_hidden_to_output.shape)
-        for X, y in zip(features, targets):
-            
-            final_outputs, hidden_outputs = self.forward_pass_train(X)  
 
-            delta_weights_i_h, delta_weights_h_o = self.backpropagation(
-                                        final_outputs, 
-                                        hidden_outputs, 
-                                        X, 
-                                        y,
-                                        delta_weights_i_h, 
-                                        delta_weights_h_o)
+        final_outputs, hidden_outputs = self.forward_pass_train(features)  
+
+        delta_weights_i_h, delta_weights_h_o = self.backpropagation(
+                                    final_outputs, 
+                                    hidden_outputs, 
+                                    features, 
+                                    targets,
+                                    delta_weights_i_h, 
+                                    delta_weights_h_o)
         self.update_weights(delta_weights_i_h, delta_weights_h_o, n_records)
 
     def forward_pass_train(self, X):
@@ -46,6 +50,7 @@ class NeuralNetwork(object):
             Arguments
             ---------
             X: features batch
+
         '''
         ### Forward pass ###
         hidden_inputs = np.dot(X, self.weights_input_to_hidden)
@@ -69,8 +74,10 @@ class NeuralNetwork(object):
             y: target (i.e. label) batch
             delta_weights_i_h: change in weights from input to hidden layers
             delta_weights_h_o: change in weights from hidden to output layers
+
         '''
         ### Backward pass ###
+
         error = y-final_outputs
 
         output_error_term = error
@@ -78,8 +85,8 @@ class NeuralNetwork(object):
         hidden_error =  np.dot(output_error_term, self.weights_hidden_to_output.T) 
         hidden_error_term = hidden_error*hidden_outputs*(1-hidden_outputs)
 
-        delta_weights_i_h += hidden_error_term * X[:, None]
-        delta_weights_h_o += output_error_term * hidden_outputs[:, None]
+        delta_weights_i_h = np.dot(X.T,hidden_error_term)
+        delta_weights_h_o =  np.dot(hidden_outputs.T,output_error_term)
         return delta_weights_i_h, delta_weights_h_o
 
     def update_weights(self, delta_weights_i_h, delta_weights_h_o, n_records):
@@ -91,7 +98,6 @@ class NeuralNetwork(object):
             delta_weights_h_o: change in weights from hidden to output layers
             n_records: number of records
         '''
-        delta_weights_h_o = delta_weights_h_o.reshape(len(delta_weights_h_o),1)
         self.weights_hidden_to_output += self.lr*(delta_weights_h_o/n_records)
         self.weights_input_to_hidden += self.lr*(delta_weights_i_h/n_records)
 
@@ -102,7 +108,6 @@ class NeuralNetwork(object):
             ---------
             features: 1D array of feature values
         '''
-        #### Implement the forward pass here ####
         hidden_inputs = np.dot(features, self.weights_input_to_hidden)
         hidden_outputs = self.activation_function(hidden_inputs)
         

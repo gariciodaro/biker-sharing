@@ -2,6 +2,7 @@ import numpy as np
 
 class NeuralNetwork(object):
     def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate):
+        print('using loop implementation')
         # Set number of nodes in input, hidden and output layers.
         self.input_nodes = input_nodes
         self.hidden_nodes = hidden_nodes
