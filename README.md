@@ -26,11 +26,17 @@ Dataset from [1].
 + 60 last day of training set as validation. Prior test set cut off.
 + Normalized features: ['casual', 'registered', 'cnt', 'temp', 'hum', 'windspeed']
 
-# Comments.
-+ on my_answers_loop.py we have the loop implementation. on my_answers_vectorial.py. Vectorial implementation, for the same optimal parameters of the NN is 25% faster.
+## How did I closed the search space.
 + Create selector of features. We will leverage sklearn **SelectKBest**. For continuous features we will apply **ANOVA/f_regression** to select k top features (Rank by p-value). For discrete features we will use mutual information (**mutual_info_regression**). The ANOVA would pick linear relationships between features and target. It assumes normality. Mutual information does not make any assumptions. It try to quantify the amount of information a pair of random variable shares. 
+    +   According to the search, all features helped the NN. Holiday was the less important.
 + Apply Bayesian search of hyperparameters with **Hyperopt**. With Bayesian search we try to swap the optimization space more efficiently by taking into account the history of trials. In the current exercise, the optimization space contains, hyperparameters as learning rate,  feature selection steps, and network architecture (selection of number of hiddens units).
 + I also try to apply early stopping with a naive implementation.
+    +   Helped to narrow down unstable configuratios. Once a stable band is found, early stopping was removed.
+
+## How well does the model predict the data? Where does it fail? Why does it fail where it does
+
++ It fails to predict later December data, probably because some seasonality not well capture by last year data. Seasonal components of a time series problem require more data from previous years.
++ As in any time series problems, the further in time from training time span the predictions are made, the less accurate they become. I don’t think more optimizations can solve this problem, we simply need more data or maybe an independent model for seasonal effects.
 
 ## Forward pass diagram
 ![forward_pass](./assets/forward_pass.png)
